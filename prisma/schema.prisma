@@ -1,0 +1,91 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+  previewFeatures = ["referentialIntegrity"]
+}
+datasource db {
+  provider = "mysql"
+  url = env("DATABASE_URL")
+  referentialIntegrity = "prisma"
+}
+model UserKind{
+    id Int @id @default(autoincrement())
+    rankName String @unique
+    rank Int @default(0)
+    users User[]
+}
+model User {
+    id Int @id @default(autoincrement())
+    userIdentity String @unique
+    password String
+    kindId Int?
+    kind UserKind?  @relation(fields: [kindId], references: [id], onDelete: Cascade)
+    products Product[]
+    saleLists SaleList[]
+    createAt DateTime @default(now())
+    updateAt DateTime @updatedAt
+}
+
+model Product {
+    id Int @id @default(autoincrement())
+    brand String
+    title String
+    option String
+    quantity Int @default(0)
+    saveQuantity Int @default(0)
+    price Int @default(0)
+    temp String?
+    userId Int
+    user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+    storeId Int
+    sales Sale[]
+    store Store @relation(fields: [storeId], references: [id], onDelete: Cascade)
+    createAt DateTime @default(now())
+    updateAt DateTime @updatedAt
+}
+model AllLog{
+    id Int @id @default(autoincrement())
+    log String
+    createAt DateTime @default(now())
+}
+model Store {
+    id Int @id @default(autoincrement())
+    kind Int
+    title String
+    name String
+    products Product[]
+    SaleLists SaleList[]
+    createAt DateTime @default(now())
+    updateAt DateTime @updatedAt
+}
+model SaleList{
+    id Int @id @default(autoincrement())
+    kind SaleKind
+    temp String
+    sales Sale[]
+    userId Int
+    user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+    storeId Int
+    store Store @relation(fields: [storeId], references: [id], onDelete: Cascade)
+    createAt DateTime @default(now())
+}
+model Sale {
+    id Int @id @default(autoincrement())
+    kind SaleKind
+    productId Int
+    product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+    quantity Int
+    saleListId Int
+    saleList SaleList @relation(fields: [saleListId], references: [id], onDelete: Cascade)
+    createAt DateTime @default(now())
+    updateAt DateTime @updatedAt
+}
+enum SaleKind {
+    buy
+    sale
+    cancel
+}
+
+
